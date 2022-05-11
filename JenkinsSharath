@@ -29,7 +29,7 @@ stage('upload nexus'){
 //deploy into tomcat
 stage('deploy'){
     sshagent(['02e6cb50-5a07-4145-9db0-772ed57409d3']) {
-        sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@13.233.161.1:/opt/apache-tomcat-9.0.62/webapps"
+        sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@65.1.132.241:/opt/apache-tomcat-9.0.62/webapps"
 }
 }
 
