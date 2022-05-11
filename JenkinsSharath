@@ -1,0 +1,36 @@
+node(''){
+    
+def mavenHome = tool name:"maven3.8.5"
+echo 'the branch name is: ${env.BRANCH_NAME}'
+echo 'the build number is: ${env.BUILD_NUMBER}'
+properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '6')), [$class: 'JobLocalConfiguration', changeReasonComment: '']])
+
+
+    //checkoutcode
+stage('checkoutcode'){
+    git branch: 'development', credentialsId: '5ab320a9-661a-41bf-8c5b-52e021fa512b', 
+    url: 'https://github.com/devops1125/maven-web-application.git'
+}
+//build
+stage('build'){
+    sh "$mavenHome/bin/mvn clean package"
+}
+
+//sonarqubereport
+stage('sonarqube report'){
+    sh "$mavenHome/bin/mvn sonar:sonar"
+}
+
+//upload artifact into artifact repo
+stage('upload nexus'){
+    sh "$mavenHome/bin/mvn deploy"
+}
+
+//deploy into tomcat
+stage('deploy'){
+    sshagent(['02e6cb50-5a07-4145-9db0-772ed57409d3']) {
+        sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@13.233.161.1:/opt/apache-tomcat-9.0.62/webapps"
+}
+}
+
+}   //nodeclosing
